@@ -8,6 +8,8 @@
  * @license MIT
  */
 
+export const VERSION = '1.1.0';
+
 // ─── Case Conversion ────────────────────────────────────────────────
 
 /**
@@ -76,16 +78,19 @@ export function sentenceCase(str) {
 
 /** Remove leading/trailing whitespace and collapse internal runs. */
 export function compact(str) {
+  if (str == null) return '';
   return String(str).trim().replace(/\s+/g, ' ');
 }
 
 /** Trim each line in a multiline string. */
 export function trimLines(str) {
+  if (str == null) return '';
   return String(str).split('\n').map(l => l.trim()).join('\n');
 }
 
 /** Remove ALL whitespace. */
 export function stripWhitespace(str) {
+  if (str == null) return '';
   return String(str).replace(/\s+/g, '');
 }
 
@@ -95,22 +100,30 @@ export function stripWhitespace(str) {
 export function pad(str, len, char = ' ') {
   const s = String(str);
   if (s.length >= len) return s;
+  if (!char) return s; // empty padding char = no padding
   const total = len - s.length;
   const left = Math.ceil(total / 2);
   const right = total - left;
-  return char.repeat(left) + s + char.repeat(right);
+  // For multi-char padding strings, slice to exact length
+  const leftStr = char.repeat(Math.ceil(left / char.length)).slice(0, left);
+  const rightStr = char.repeat(Math.ceil(right / char.length)).slice(0, right);
+  return leftStr + s + rightStr;
 }
 
 /** Pad string on the left. */
 export function padLeft(str, len, char = ' ') {
   const s = String(str);
-  return s.length >= len ? s : char.repeat(len - s.length) + s;
+  if (s.length >= len || !char) return s;
+  const needed = len - s.length;
+  return char.repeat(Math.ceil(needed / char.length)).slice(0, needed) + s;
 }
 
 /** Pad string on the right. */
 export function padRight(str, len, char = ' ') {
   const s = String(str);
-  return s.length >= len ? s : s + char.repeat(len - s.length);
+  if (s.length >= len || !char) return s;
+  const needed = len - s.length;
+  return s + char.repeat(Math.ceil(needed / char.length)).slice(0, needed);
 }
 
 // ─── Truncation ────────────────────────────────────────────────────
@@ -118,9 +131,11 @@ export function padRight(str, len, char = ' ') {
 /** Truncate to maxLen, appending suffix (default …). */
 export function truncate(str, maxLen, suffix = '…') {
   const s = String(str);
+  if (maxLen < 0) maxLen = 0;
   if (s.length <= maxLen) return s;
   const cut = suffix ? maxLen - suffix.length : maxLen;
-  return s.slice(0, Math.max(0, cut)) + (suffix || '');
+  if (cut <= 0) return suffix ? suffix.slice(0, maxLen) : '';
+  return s.slice(0, cut) + (suffix || '');
 }
 
 /** Truncate at word boundary, respecting maxLen. */
@@ -179,9 +194,10 @@ export function capitalize(str) {
   return s ? s[0].toUpperCase() + s.slice(1) : s;
 }
 
-/** Capitalize first char of each word. */
+/** Capitalize first char of each word (respects apostrophes like "don't" → "Don't"). */
 export function capitalizeWords(str) {
-  return String(str).replace(/\b\w/g, c => c.toUpperCase());
+  if (str == null) return '';
+  return String(str).replace(/(^|[\s\-_.\/])(\w)/g, (_, sep, char) => sep + char.toUpperCase());
 }
 
 /** Swap case of each character. */
@@ -381,6 +397,7 @@ export function uncapitalize(str) {
 // ─── Default Export ────────────────────────────────────────────────
 
 export default {
+  VERSION,
   words, camelCase, pascalCase, snakeCase, kebabCase, constantCase, dotCase,
   titleCase, sentenceCase, compact, trimLines, stripWhitespace,
   pad, padLeft, padRight, truncate, prune,

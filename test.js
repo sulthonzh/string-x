@@ -2,6 +2,13 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import * as sx from './index.js';
 
+describe('VERSION', () => {
+  it('exports a valid semver', () => {
+    assert.match(sx.VERSION, /^\d+\.\d+\.\d+$/);
+    assert.equal(sx.VERSION, '1.1.0');
+  });
+});
+
 describe('Case Conversion', () => {
   it('words splits on various delimiters', () => {
     assert.deepEqual(sx.words('hello world'), ['hello', 'world']);
@@ -326,5 +333,278 @@ describe('Misc Utilities', () => {
     assert.equal(sx.uncapitalize('Hello'), 'hello');
     assert.equal(sx.uncapitalize('HELLO'), 'hELLO');
     assert.equal(sx.uncapitalize(''), '');
+  });
+});
+
+describe('Null/Undefined Safety', () => {
+  it('compact handles null/undefined', () => {
+    assert.equal(sx.compact(null), '');
+    assert.equal(sx.compact(undefined), '');
+  });
+
+  it('trimLines handles null/undefined', () => {
+    assert.equal(sx.trimLines(null), '');
+    assert.equal(sx.trimLines(undefined), '');
+  });
+
+  it('stripWhitespace handles null/undefined', () => {
+    assert.equal(sx.stripWhitespace(null), '');
+    assert.equal(sx.stripWhitespace(undefined), '');
+  });
+
+  it('capitalizeWords handles null/undefined', () => {
+    assert.equal(sx.capitalizeWords(null), '');
+    assert.equal(sx.capitalizeWords(undefined), '');
+  });
+});
+
+describe('Padding Edge Cases', () => {
+  it('pad with multi-char string produces exact length', () => {
+    assert.equal(sx.pad('hi', 8, 'ab').length, 8);
+    assert.equal(sx.pad('hi', 10, 'abc').length, 10);
+    assert.equal(sx.pad('x', 7, 'ab').length, 7);
+  });
+
+  it('pad with empty char returns original', () => {
+    assert.equal(sx.pad('hi', 6, ''), 'hi');
+  });
+
+  it('padLeft with multi-char string produces exact length', () => {
+    assert.equal(sx.padLeft('5', 5, 'ab').length, 5);
+    assert.equal(sx.padLeft('x', 7, 'abc').length, 7);
+  });
+
+  it('padLeft with empty char returns original', () => {
+    assert.equal(sx.padLeft('hi', 6, ''), 'hi');
+  });
+
+  it('padRight with multi-char string produces exact length', () => {
+    assert.equal(sx.padRight('5', 5, 'ab').length, 5);
+    assert.equal(sx.padRight('x', 7, 'abc').length, 7);
+  });
+
+  it('padRight with empty char returns original', () => {
+    assert.equal(sx.padRight('hi', 6, ''), 'hi');
+  });
+
+  it('pad with len shorter than string', () => {
+    assert.equal(sx.pad('longstring', 3), 'longstring');
+    assert.equal(sx.padLeft('longstring', 3), 'longstring');
+    assert.equal(sx.padRight('longstring', 3), 'longstring');
+  });
+});
+
+describe('Truncation Edge Cases', () => {
+  it('truncate with maxLen=0 returns empty string', () => {
+    assert.equal(sx.truncate('hello', 0), '');
+  });
+
+  it('truncate with negative maxLen returns empty string', () => {
+    assert.equal(sx.truncate('hello', -5), '');
+  });
+
+  it('truncate with maxLen=1 returns just suffix', () => {
+    assert.equal(sx.truncate('hello', 1), '…');
+  });
+
+  it('truncate with empty suffix', () => {
+    assert.equal(sx.truncate('hello', 3, ''), 'hel');
+  });
+
+  it('truncate suffix longer than maxLen', () => {
+    assert.equal(sx.truncate('hello', 2, '...'), '..');
+  });
+});
+
+describe('CapitalizeWords Edge Cases', () => {
+  it('respects apostrophes', () => {
+    assert.equal(sx.capitalizeWords("don't stop"), "Don't Stop");
+    assert.equal(sx.capitalizeWords("it's a test"), "It's A Test");
+  });
+
+  it('capitalizes after hyphens', () => {
+    assert.equal(sx.capitalizeWords('hello-world'), 'Hello-World');
+  });
+
+  it('handles empty string', () => {
+    assert.equal(sx.capitalizeWords(''), '');
+  });
+
+  it('handles already capitalized', () => {
+    assert.equal(sx.capitalizeWords('Hello World'), 'Hello World');
+  });
+});
+
+describe('Interpolate Edge Cases', () => {
+  it('interpolate with null data returns empty for missing', () => {
+    assert.equal(sx.interpolate('{{name}}', null), '');
+  });
+
+  it('interpolate with undefined data', () => {
+    assert.equal(sx.interpolate('{{name}}', undefined), '');
+  });
+
+  it('interpolate array index access', () => {
+    assert.equal(sx.interpolate('{{items.0}}', { items: ['a', 'b'] }), 'a');
+    assert.equal(sx.interpolate('{{items.1}}', { items: ['a', 'b'] }), 'b');
+  });
+
+  it('interpolate deep nested', () => {
+    assert.equal(sx.interpolate('{{a.b.c.d}}', { a: { b: { c: { d: 'deep' } } } }), 'deep');
+  });
+
+  it('interpolate value is 0 (falsy but valid)', () => {
+    assert.equal(sx.interpolate('{{count}}', { count: 0 }), '0');
+  });
+
+  it('interpolate value is false', () => {
+    assert.equal(sx.interpolate('{{flag}}', { flag: false }), 'false');
+  });
+
+  it('interpolate custom delimiters with special regex chars', () => {
+    assert.equal(sx.interpolate('[name]', { name: 'test' }, { open: '[', close: ']' }), 'test');
+  });
+});
+
+describe('Slugify Edge Cases', () => {
+  it('handles unicode and diacritics', () => {
+    assert.equal(sx.slugify('Héllo Wörld!'), 'hello-world');
+    assert.equal(sx.slugify('naïve façade'), 'naive-facade');
+  });
+
+  it('handles numbers', () => {
+    assert.equal(sx.slugify('Hello World 123'), 'hello-world-123');
+  });
+
+  it('custom separator', () => {
+    assert.equal(sx.slugify('Hello World', { separator: '_' }), 'hello_world');
+    assert.equal(sx.slugify('Hello World', { separator: '.' }), 'hello.world');
+  });
+
+  it('lower=false preserves case', () => {
+    assert.equal(sx.slugify('Hello World', { lower: false }), 'Hello-World');
+  });
+
+  it('empty string', () => {
+    assert.equal(sx.slugify(''), '');
+  });
+
+  it('only special chars', () => {
+    assert.equal(sx.slugify('!!!???'), '');
+  });
+
+  it('multiple consecutive separators', () => {
+    assert.equal(sx.slugify('foo   bar---baz'), 'foo-bar-baz');
+  });
+});
+
+describe('Levenshtein/Similarity Edge Cases', () => {
+  it('levenshtein with empty strings', () => {
+    assert.equal(sx.levenshtein('', ''), 0);
+    assert.equal(sx.levenshtein('abc', ''), 3);
+    assert.equal(sx.levenshtein('', 'abc'), 3);
+  });
+
+  it('levenshtein identical strings', () => {
+    assert.equal(sx.levenshtein('hello', 'hello'), 0);
+  });
+
+  it('similarity boundary values', () => {
+    assert.equal(sx.similarity('abc', 'abc'), 1);
+    assert.equal(sx.similarity('', ''), 1);
+    assert.equal(sx.similarity('abc', 'xyz'), 0);
+  });
+
+  it('similarity with different lengths', () => {
+    const sim = sx.similarity('ab', 'abcdef');
+    assert.ok(sim > 0 && sim < 0.5);
+  });
+});
+
+describe('Words Edge Cases', () => {
+  it('handles consecutive capitals', () => {
+    assert.deepEqual(sx.words('HTTPServer'), ['HTTP', 'Server']);
+  });
+
+  it('handles numbers in words', () => {
+    assert.deepEqual(sx.words('hello123world'), ['hello123world']);
+    assert.deepEqual(sx.words('hello 123 world'), ['hello', '123', 'world']);
+  });
+
+  it('handles slashes', () => {
+    assert.deepEqual(sx.words('foo/bar'), ['foo', 'bar']);
+  });
+});
+
+describe('Escape Edge Cases', () => {
+  it('escapeHtml with empty/null', () => {
+    assert.equal(sx.escapeHtml(''), '');
+    assert.equal(sx.escapeHtml(null), 'null'); // String(null) = 'null'
+  });
+
+  it('unescapeHtml round-trip', () => {
+    const html = '<div class="x">&\'y\'</div>';
+    assert.equal(sx.unescapeHtml(sx.escapeHtml(html)), html);
+  });
+
+  it('unescapeHtml numeric entities (decimal and hex)', () => {
+    assert.equal(sx.unescapeHtml('&#65;'), 'A');
+    assert.equal(sx.unescapeHtml('&#x41;'), 'A');
+    assert.equal(sx.unescapeHtml('&#8364;'), '€');
+  });
+
+  it('escapeRegExp produces valid regex', () => {
+    const escaped = sx.escapeRegExp('a.b*c+d?e^f$g(h)i|j[k\\l]m{n}o');
+    new RegExp(escaped); // should not throw
+    assert.ok(true);
+  });
+
+  it('stripTags with malformed HTML', () => {
+    assert.equal(sx.stripTags('<div>text'), 'text');
+    assert.equal(sx.stripTags('text</div>'), 'text');
+    assert.equal(sx.stripTags('a<b>c'), 'ac');
+  });
+});
+
+describe('Misc Edge Cases', () => {
+  it('surround with single-element array', () => {
+    assert.equal(sx.surround('hi', ['_']), '_hi_');
+  });
+
+  it('surround with two-element array', () => {
+    assert.equal(sx.surround('hi', ['[', ']']), '[hi]');
+  });
+
+  it('surround with string', () => {
+    assert.equal(sx.surround('hi', '"'), '"hi"');
+  });
+
+  it('randomString with custom alphabet', () => {
+    const s = sx.randomString(20, '01');
+    assert.equal(s.length, 20);
+    assert.ok(/^[01]+$/.test(s));
+  });
+
+  it('randomString with length 0', () => {
+    assert.equal(sx.randomString(0), '');
+  });
+
+  it('chop with various sizes', () => {
+    assert.deepEqual(sx.chop('abcdefg', 3), ['abc', 'def', 'g']);
+    assert.deepEqual(sx.chop('abc', 0), []);
+    assert.deepEqual(sx.chop('abc', -1), []);
+    assert.deepEqual(sx.chop('', 2), []);
+    assert.deepEqual(sx.chop('abcdef', 2), ['ab', 'cd', 'ef']);
+  });
+
+  it('lines handles \\r\\n', () => {
+    assert.deepEqual(sx.lines('a\r\nb\r\nc'), ['a', 'b', 'c']);
+    assert.deepEqual(sx.lines('single'), ['single']);
+    assert.deepEqual(sx.lines(''), ['']);
+  });
+
+  it('reverse handles emoji and surrogate pairs', () => {
+    assert.equal(sx.reverse('🚀🌍'), '🌍🚀');
+    assert.equal(sx.reverse('a🚀b'), 'b🚀a');
   });
 });

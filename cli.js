@@ -2,6 +2,8 @@
 import { readFileSync } from 'fs';
 import * as sx from './index.js';
 
+const VERSION = '1.1.0';
+
 const [cmd, ...args] = process.argv.slice(2);
 
 function readStdin() {
@@ -58,7 +60,7 @@ const cmds = {
 };
 
 if (!cmd || cmd === '--help' || cmd === '-h') {
-  console.log(`string-x CLI
+  console.log(`string-x CLI v${VERSION}
 
 Commands:
   camel <str>       Convert to camelCase
@@ -76,7 +78,13 @@ Commands:
   template <tpl> --data '{"k":"v"}'
   levenshtein <a> <b>
   similarity <a> <b>
-  demo              Show examples`);
+  demo              Show examples
+  --version, -V     Show version`);
+  process.exit(0);
+}
+
+if (cmd === '--version' || cmd === '-V') {
+  console.log(VERSION);
   process.exit(0);
 }
 

@@ -1,14 +1,31 @@
 {
   "name": "string-x",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Zero-dependency string manipulation utilities — case conversion, trimming, padding, templates, slugify, HTML escaping, and more.",
   "type": "module",
   "main": "index.js",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "require": "./index.js"
+    }
+  },
   "bin": {
     "string-x": "cli.js"
   },
+  "files": [
+    "index.js",
+    "cli.js",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "test": "node --test test.js"
+    "test": "node --test test.js",
+    "test:core": "node --test test.js",
+    "prepublishOnly": "npm test"
   },
   "keywords": ["string", "case", "camelCase", "snake_case", "kebab-case", "slugify", "template", "escape", "truncate", "zero-dependency"],
   "author": "sulthonzh",

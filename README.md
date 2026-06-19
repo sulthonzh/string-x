@@ -1,10 +1,10 @@
 # string-x
 
-Zero-dependency string manipulation utilities. Case conversion, trimming, padding, truncation, templates, slugify, HTML escaping, and more.
+Stop writing the same string helpers in every project. 40+ utilities — case conversion, slugify, truncation, templates, HTML escaping, Levenshtein distance — in one tiny zero-dependency package.
 
 ## Why
 
-Every project needs string utilities. You either pull in lodash (47KB min), write the same helpers again, or skip cleanup and ship messy strings. `string-x` gives you ~50 utilities in one tiny zero-dependency package.
+Every project needs string utilities. You either pull in lodash (47KB min), write the same helpers again, or skip cleanup and ship messy strings. `string-x` gives you a comprehensive toolkit in one tiny zero-dependency package.
 
 ## Install
 
@@ -12,7 +12,7 @@ Every project needs string utilities. You either pull in lodash (47KB min), writ
 npm install string-x
 ```
 
-## Usage
+## Quick Start
 
 ```js
 import { camelCase, slugify, truncate, interpolate, escapeHtml } from 'string-x';
@@ -23,6 +23,21 @@ truncate('Hello World', 8)      // → 'Hello W…'
 interpolate('Hi {{name}}!', { name: 'Alice' })  // → 'Hi Alice!'
 escapeHtml('<script>alert(1)</script>')  // → '&lt;script&gt;alert(1)&lt;/script&gt;'
 ```
+
+## vs Alternatives
+
+| Feature | string-x | lodash | voca | change-case | suckerpinch |
+|---------|----------|--------|------|-------------|-------------|
+| Size | ~8KB | ~47KB | ~50KB | ~5KB | ~3KB |
+| Dependencies | 0 | 0 | 0 | 2 | 0 |
+| Case conversion | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Slugify | ✅ | ❌ | ✅ | ❌ | ❌ |
+| HTML escape/unescape | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Template interpolation | ✅ | ✅ (template) | ❌ | ❌ | ❌ |
+| Levenshtein distance | ✅ | ❌ | ✅ | ❌ | ❌ |
+| Truncation (smart) | ✅ | ✅ | ✅ | ❌ | ❌ |
+| CLI included | ✅ | ❌ | ❌ | ❌ | ❌ |
+| ESM-first | ✅ | ❌ | ❌ | ❌ | ❌ |
 
 ## API
 
@@ -48,7 +63,7 @@ escapeHtml('<script>alert(1)</script>')  // → '&lt;script&gt;alert(1)&lt;/scri
 
 ### Padding
 
-- **`pad(str, len, char=' ')`** — Center-pad to target length
+- **`pad(str, len, char=' ')`** — Center-pad to target length (multi-char safe)
 - **`padLeft(str, len, char=' ')`** — Left-pad (e.g., zero-pad numbers)
 - **`padRight(str, len, char=' ')`** — Right-pad
 
@@ -68,7 +83,7 @@ escapeHtml('<script>alert(1)</script>')  // → '&lt;script&gt;alert(1)&lt;/scri
 ### Transform
 
 - **`capitalize(str)`** — First character uppercase
-- **`capitalizeWords(str)`** — First char of each word
+- **`capitalizeWords(str)`** — First char of each word (respects apostrophes: `"don't"` → `"Don't"`)
 - **`uncapitalize(str)`** — First character lowercase
 - **`swapCase(str)`** — Swap case of all characters
 - **`reverse(str)`** — Reverse (surrogate-pair safe)
@@ -146,6 +161,63 @@ string-x escape "<div>test</div>"
 
 # Levenshtein
 string-x levenshtein kitten sitting   # 3
+```
+
+## Real-World Examples
+
+### 1. Form Data Normalization (Express/Hono middleware)
+
+```js
+import { compact, camelCase, slugify } from 'string-x';
+
+function normalizeFormData(req, res, next) {
+  for (const [key, value] of Object.entries(req.body)) {
+    const normalized = compact(value);       // trim + collapse whitespace
+    req.body[camelCase(key)] = normalized;
+  }
+  // Auto-generate slug from title
+  if (req.body.title) {
+    req.body.slug = slugify(req.body.title);
+  }
+  next();
+}
+```
+
+### 2. Search Relevance Ranking
+
+```js
+import { similarity, levenshtein } from 'string-x';
+
+function searchProducts(query, products) {
+  return products
+    .map(p => ({
+      ...p,
+      score: similarity(query.toLowerCase(), p.name.toLowerCase())
+    }))
+    .filter(p => p.score > 0.3)
+    .sort((a, b) => b.score - a.score);
+}
+
+// "laptop" matches "Laptop Pro" (0.53) better than "Lapel Pin" (0.17)
+```
+
+### 3. Email Template Rendering
+
+```js
+import { interpolate, capitalizeWords } from 'string-x';
+
+const template = `Hello {{user.firstName}},
+
+Your order #{{order.id}} has been {{order.status}}.
+
+Items:
+{{order.items}}`;
+
+const rendered = interpolate(template, {
+  user: { firstName: 'alice' },
+  order: { id: '42', status: 'shipped', items: 'Widget, Gizmo' }
+});
+// → "Hello alice,\n\nYour order #42 has been shipped.\n\nItems:\nWidget, Gizmo"
 ```
 
 ## Zero Dependencies
