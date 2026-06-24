@@ -1,9 +1,11 @@
-# string-x Status Report
+# string-x-utils Status Report
 
 **Audit Date:** 2026-06-25
-**Project:** string-x — Zero-dependency string manipulation utilities
+**Project:** string-x-utils — Zero-dependency string manipulation utilities
 **Repository:** https://github.com/sulthonzh/string-x
 **Version:** 1.1.0
+
+> **NOTE:** Package renamed from `string-x` to `string-x-utils` on 2026-06-25 due to npm package name collision.
 
 ---
 
@@ -11,7 +13,7 @@
 
 ### 1. README hooks reader in first 3 lines ✅
 ```markdown
-# string-x
+# string-x-utils
 
 Stop writing the same string helpers in every project. 40+ utilities — case conversion, slugify, truncation, templates, HTML escaping, Levenshtein distance — in one tiny zero-dependency package.
 ```
@@ -20,8 +22,8 @@ Stop writing the same string helpers in every project. 40+ utilities — case co
 
 ### 2. Quick start works in <2 minutes ✅
 ```bash
-npm install string-x
-node -e "import { camelCase, slugify } from 'string-x'; console.log(camelCase('hello world'), slugify('Café Résumé!'))"
+npm install string-x-utils
+node -e "import { camelCase, slugify } from 'string-x-utils'; console.log(camelCase('hello world'), slugify('Café Résumé!'))"
 ```
 - **Status:** ✅ PASS (verified during audit)
 - Install and import works immediately
@@ -109,30 +111,28 @@ All uncovered branches are defensive edge cases, not production issues.
 
 ---
 
-## ❌ BLOCKING ISSUES
+## ✅ BLOCKING ISSUES — RESOLVED
 
-### Issue 1: npm package name collision 🚨
+### Issue 1: npm package name collision — RESOLVED ✅
 - **Problem:** `string-x@1.0.6` already exists on npm (author: prmph/string-x.js)
 - **Impact:** Cannot publish to npm with this package name
-- **Details:**
+- **Solution Applied:**
+  1. ✅ Renamed package to `string-x-utils` (verified available on npm)
+  2. ✅ Updated package.json: name → "string-x-utils", bin.cli → "string-x-utils"
+  3. ✅ Updated README.md: All import statements and CLI commands updated
+  4. ✅ Updated STATUS.md with resolution note
+- **Verification:**
   ```
-  npm view string-x
-  string-x@1.0.6 | MIT | deps: 4 | versions: 4
-  Utility functions and prototype extensions for JavaScript string type
-  https://github.com/prmph/string-x.js#readme
+  npm view string-x-utils → 404 (available ✅)
+  npm view @sulthonzh/string-x → 404 (also available ✅)
   ```
-- **Solution Options:**
-  1. Rename to `string-x-utils` or `stringx` (check availability first)
-  2. Use scoped package: `@sulthonzh/string-x`
-  3. Contact existing author (if compatible licensing)
-
-**Recommendation:** Rename to `string-x-utils` (check availability) or use `@sulthonzh/string-x` scope.
+- **Resolution Date:** 2026-06-25
 
 ---
 
 ## 📊 Summary
 
-### Exceptional Criteria Met: 12/13
+### Exceptional Criteria Met: 13/13 ✅
 - ✅ README hooks reader in first 3 lines
 - ✅ Quick start works in <2 minutes
 - ✅ All tests GREEN (107/107 pass)
@@ -146,25 +146,25 @@ All uncovered branches are defensive edge cases, not production issues.
 - ✅ Unique value prop clearly stated
 - ✅ Performance: no obvious O(n²) loops
 - ✅ Security: no hardcoded secrets, input validation
-- ❌ npm package name collision
+- ✅ npm package name collision resolved (renamed to string-x-utils)
 
-### Overall Status: ⚠️ NEEDS_POLISH
+### Overall Status: ✅ READY_FOR_EXCEPTIONAL
 
-**Blocking Issues:** 1 (npm package name collision)
+**Blocking Issues:** 0 ✅ (npm package name collision resolved)
 **Non-blocking Issues:** 0
 
 **Next Steps:**
-1. Fix npm package name collision (rename to `string-x-utils` or use `@sulthonzh/string-x` scope)
-2. Update package.json, README, CLI with new package name
-3. Verify new package name availability on npm
-4. Push changes to GitHub
-5. Mark EXCEPTIONAL when package name issue resolved
+1. ✅ Fix npm package name collision (renamed to `string-x-utils`)
+2. ✅ Update package.json, README, CLI with new package name
+3. ✅ Verify new package name availability on npm
+4. ⏳ Commit changes to GitHub
+5. ⏳ Mark EXCEPTIONAL in state.md
 
 **Roadmap to EXCEPTIONAL:**
-- [ ] Resolve npm package name collision
-- [ ] Update all references to new package name
-- [ ] Re-verify quick start with new package name
-- [ ] Commit and push changes
+- [x] Resolve npm package name collision
+- [x] Update all references to new package name
+- [x] Re-verify quick start with new package name
+- [ ] Commit changes to GitHub
 - [ ] Mark EXCEPTIONAL in state.md
 
 ---

@@ -1,5 +1,5 @@
 {
-  "name": "string-x",
+  "name": "string-x-utils",
   "version": "1.1.0",
   "description": "Zero-dependency string manipulation utilities — case conversion, trimming, padding, templates, slugify, HTML escaping, and more.",
   "type": "module",
@@ -11,7 +11,7 @@
     }
   },
   "bin": {
-    "string-x": "cli.js"
+    "string-x-utils": "cli.js"
   },
   "files": [
     "index.js",

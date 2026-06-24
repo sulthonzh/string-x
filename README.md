@@ -1,21 +1,21 @@
-# string-x
+# string-x-utils
 
 Stop writing the same string helpers in every project. 40+ utilities — case conversion, slugify, truncation, templates, HTML escaping, Levenshtein distance — in one tiny zero-dependency package.
 
 ## Why
 
-Every project needs string utilities. You either pull in lodash (47KB min), write the same helpers again, or skip cleanup and ship messy strings. `string-x` gives you a comprehensive toolkit in one tiny zero-dependency package.
+Every project needs string utilities. You either pull in lodash (47KB min), write the same helpers again, or skip cleanup and ship messy strings. `string-x-utils` gives you a comprehensive toolkit in one tiny zero-dependency package.
 
 ## Install
 
 ```bash
-npm install string-x
+npm install string-x-utils
 ```
 
 ## Quick Start
 
 ```js
-import { camelCase, slugify, truncate, interpolate, escapeHtml } from 'string-x';
+import { camelCase, slugify, truncate, interpolate, escapeHtml } from 'string-x-utils';
 
 camelCase('hello world')        // → 'helloWorld'
 slugify('Café Résumé!')         // → 'cafe-resume'
@@ -143,24 +143,24 @@ slugify('KeepIt', { lower: false })       // → 'KeepIt'
 
 ```bash
 # Case conversion
-string-x camel "hello world"      # helloWorld
-string-x snake "HelloWorld"      # hello_world
-string-x kebab "HelloWorld"      # hello-world
+string-x-utils camel "hello world"      # helloWorld
+string-x-utils snake "HelloWorld"      # hello_world
+string-x-utils kebab "HelloWorld"      # hello-world
 
 # Slugify
-string-x slug "Héllo Wörld!"     # hello-world
+string-x-utils slug "Héllo Wörld!"     # hello-world
 
 # Truncate
-echo "Hello World" | string-x truncate 8   # Hello W…
+echo "Hello World" | string-x-utils truncate 8   # Hello W…
 
 # Template
-string-x template "Hello {{name}}" --data '{"name":"World"}'
+string-x-utils template "Hello {{name}}" --data '{"name":"World"}'
 
 # Escape
-string-x escape "<div>test</div>"
+string-x-utils escape "<div>test</div>"
 
 # Levenshtein
-string-x levenshtein kitten sitting   # 3
+string-x-utils levenshtein kitten sitting   # 3
 ```
 
 ## Real-World Examples
@@ -168,7 +168,7 @@ string-x levenshtein kitten sitting   # 3
 ### 1. Form Data Normalization (Express/Hono middleware)
 
 ```js
-import { compact, camelCase, slugify } from 'string-x';
+import { compact, camelCase, slugify } from 'string-x-utils';
 
 function normalizeFormData(req, res, next) {
   for (const [key, value] of Object.entries(req.body)) {
@@ -186,7 +186,7 @@ function normalizeFormData(req, res, next) {
 ### 2. Search Relevance Ranking
 
 ```js
-import { similarity, levenshtein } from 'string-x';
+import { similarity, levenshtein } from 'string-x-utils';
 
 function searchProducts(query, products) {
   return products
@@ -204,7 +204,7 @@ function searchProducts(query, products) {
 ### 3. Email Template Rendering
 
 ```js
-import { interpolate, capitalizeWords } from 'string-x';
+import { interpolate, capitalizeWords } from 'string-x-utils';
 
 const template = `Hello {{user.firstName}},
 
