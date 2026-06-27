@@ -25,7 +25,11 @@
   "scripts": {
     "test": "node --test test.js",
     "test:core": "node --test test.js",
+    "test:coverage": "c8 --reporter=text node --test test.js",
     "prepublishOnly": "npm test"
+  },
+  "devDependencies": {
+    "c8": "^11.0.0"
   },
   "keywords": ["string", "case", "camelCase", "snake_case", "kebab-case", "slugify", "template", "escape", "truncate", "zero-dependency"],
   "author": "sulthonzh",
