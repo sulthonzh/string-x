@@ -261,9 +261,6 @@ export function lines(str) {
 const HTML_ESCAPES = {
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 };
-const HTML_UNESCAPES = Object.fromEntries(
-  Object.entries(HTML_ESCAPES).map(([k, v]) => [v, k])
-);
 
 /** Escape HTML special characters. */
 export function escapeHtml(str) {
@@ -306,7 +303,7 @@ export function slugify(str, opts = {}) {
   const separator = opts.separator || '-';
   const lower = opts.lower !== false;
   const strict = opts.strict !== false;
-  let result = String(str)
+  const result = String(str)
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '') // strip diacritics
     .replace(/[\s._\-/]+/g, ' ') // normalize separators to space
