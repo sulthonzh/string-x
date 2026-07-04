@@ -2,3 +2,10 @@ node_modules/
 coverage/
 *.log
 .DS_Store
+dist/
+build/
+.env
+__pycache__/
+.venv/
+*.egg-info/
+.mypy_cache/
