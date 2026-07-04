@@ -50,5 +50,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/sulthonzh/string-x"
+  },
+  "homepage": "https://github.com/sulthonzh/string-x#readme",
+  "bugs": {
+    "url": "https://github.com/sulthonzh/string-x/issues"
   }
 }
