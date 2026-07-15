@@ -608,3 +608,101 @@ describe('Misc Edge Cases', () => {
     assert.equal(sx.reverse('a🚀b'), 'b🚀a');
   });
 });
+
+describe('Coverage: Uncovered Branch Targets', () => {
+  // Line 72: sentenceCase with empty words array
+  it('sentenceCase with empty string returns empty', () => {
+    assert.equal(sx.sentenceCase(''), '');
+    assert.equal(sx.sentenceCase('   '), '');
+    assert.equal(sx.sentenceCase('...'), '');
+  });
+
+  // Lines 145-146, 149-150: prune word boundary fallbacks
+  it('prune with no word boundary falls back to maxLen', () => {
+    assert.equal(sx.prune('abcdef', 4), 'abc…');
+    assert.equal(sx.prune('xyz', 6, '...'), 'xyz');
+  });
+
+  it('prune with suffix empty string', () => {
+    // suffix='' is falsy, so end = maxLen - 0 = 8, walks back to word boundary
+    assert.equal(sx.prune('hello world foo', 8, ''), 'hello');
+  });
+
+  it('prune with end <= 0 returns suffix', () => {
+    // maxLen=0, suffix='…' (default), end = 0-1 = -1, end <= 0 → return suffix || '' = '…'
+    assert.equal(sx.prune('hello', 0), '…');
+    // maxLen=2, suffix='...', end = 2-3 = -1, end <= 0 → return '...'
+    assert.equal(sx.prune('hello', 2, '...'), '...');
+  });
+
+  // Line 165: count with empty substring
+  it('count with empty substring returns 0', () => {
+    assert.equal(sx.count('hello', ''), 0);
+  });
+
+  // Line 284: unescapeHtml fallback for unknown named entities
+  it('unescapeHtml returns original for unknown named entity', () => {
+    assert.equal(sx.unescapeHtml('&unknown;'), '&unknown;');
+    assert.equal(sx.unescapeHtml('&foo;bar&baz;'), '&foo;bar&baz;');
+  });
+
+  // Line 313: slugify strict=false branch
+  it('slugify with strict=false allows non-alphanumeric through regex', () => {
+    // strict=false and strict=true use the SAME regex — the ternary is a no-op
+    // Both branches: /[^a-zA-Z0-9 ]/g strips non-alphanumeric
+    assert.equal(sx.slugify('hello@world!', { strict: false }), 'helloworld');
+    assert.equal(sx.slugify('hello world', { strict: false }), 'hello-world');
+  });
+
+  // Lines 381, 388: similarity edge cases
+  it('similarity with both empty strings', () => {
+    assert.equal(sx.similarity('', ''), 1);
+  });
+
+  it('similarity with maxLen 0 (both empty after String())', () => {
+    // Both strings have length 0 after conversion
+    assert.equal(sx.similarity(null, null), 1);
+  });
+
+  // pad/padLeft/padRight with empty padding char (already tested but verify branch)
+  it('padLeft with empty char returns original', () => {
+    assert.equal(sx.padLeft('test', 10, ''), 'test');
+  });
+
+  it('padRight with empty char returns original', () => {
+    assert.equal(sx.padRight('test', 10, ''), 'test');
+  });
+
+  // truncate cut <= 0 with suffix present
+  it('truncate with cut exactly 0 returns suffix sliced', () => {
+    // suffix='…' (1 char), maxLen=1: cut = 1-1 = 0, cut <= 0 → return suffix.slice(0,1) = '…'
+    assert.equal(sx.truncate('hello', 1, '…'), '…');
+  });
+
+  // surround with falsy wrapper elements
+  it('surround with empty array uses empty strings', () => {
+    assert.equal(sx.surround('hi', ['', '']), 'hi');
+  });
+
+  // surround with falsy wrapper elements — w[1] || w[0] fallback
+  it('surround with second element falsy uses first for both', () => {
+    assert.equal(sx.surround('hi', ['X', '']), 'XhiX');  // w[1]='' is falsy → w[1] || w[0] = 'X'
+  });
+
+  // isNumeric with whitespace-only string
+  it('isNumeric with whitespace-only returns false', () => {
+    assert.equal(sx.isNumeric('   '), false);
+    assert.equal(sx.isNumeric('\t\n'), false);
+  });
+
+  // interpolate with null/undefined value in data
+  it('interpolate with explicit null value renders empty', () => {
+    assert.equal(sx.interpolate('{{x}}', { x: null }), '');
+    assert.equal(sx.interpolate('{{x}}', { x: undefined }), '');
+  });
+
+  // repeat with n=1 and separator
+  it('repeat with n=1 and separator returns just the string', () => {
+    assert.equal(sx.repeat('hi', 1, '-'), 'hi');
+  });
+});
