@@ -1,6 +1,6 @@
 # string-x-utils Status Report
 
-**Audit Date:** 2026-07-16
+**Audit Date:** 2026-07-20 (re-audited 2026-07-16)
 **Project:** string-x-utils — Zero-dependency string manipulation utilities
 **Repository:** https://github.com/sulthonzh/string-x
 **Version:** 1.1.0
@@ -29,19 +29,24 @@ node -e "import { camelCase, slugify } from 'string-x-utils'; console.log(camelC
 - Install and import works immediately
 
 ### 3. All tests GREEN ✅
-- **Test Count:** 124/124 passing
+- **Test Count:** 131/131 passing
 - **Pass Rate:** 100%
 - **Status:** ✅ PASS
 
 ### 4. Test coverage >= 80% on core logic ✅
 - **Statement Coverage:** 100%
-- **Branch Coverage:** 96.51% (index.js), 98.13% overall
+- **Branch Coverage:** 98.85% (index.js)
 - **Function Coverage:** 100%
 - **Line Coverage:** 100%
 - **Status:** ✅ PASS
 
-**Remaining Uncovered Branches (3.49% - not blocking):**
-Implicit short-circuit paths (|| / &&) in defensive code. All explicit logic branches now covered.
+**Remaining Uncovered Branches (1.15% - V8/c8 instrumentation artifacts):**
+- Line 281: `named[entity.toLowerCase()] || match` — V8 does not count `||` branch for computed property access returning undefined. Functionally verified via `unescapeHtml('&foobarbaz;')`.
+- Line 378: `if (maxLen === 0) return 1;` — Dead code. Unreachable: `similarity('', '')` returns at line 376 (`!a && !b`), and any truthy input has `String(a).length > 0`, so `maxLen` is never 0.
+
+**Coverage improvement (2026-07-20 re-audit):**
+- Branch coverage: 96.51% → **98.85%** (index.js, +2.34%)
+- Tests: 124 → **131** (+7 targeting truncate cut≤0 with falsy suffix, prune end≤0 with falsy suffix, prune no-word-boundary reset, indexOfAll falsy substr, unescapeHtml unknown entity, isBlank falsy str, surround undefined/null/0 wrapper elements)
 
 **Coverage improvement (2026-07-16):**
 - Branch coverage: 93.45% → 96.51% (index.js)

@@ -706,3 +706,71 @@ describe('Coverage: Uncovered Branch Targets', () => {
     assert.equal(sx.repeat('hi', 1, '-'), 'hi');
   });
 });
+
+describe('Coverage: Branch Gap Closures', () => {
+  // Line 137: truncate cut<=0 with suffix falsy → return ''
+  it('truncate with cut<=0 and falsy suffix returns empty string', () => {
+    // suffix=null, maxLen=0: cut = maxLen = 0 (suffix falsy), cut<=0, suffix falsy → ''
+    assert.equal(sx.truncate('hello', 0, null), '');
+    // suffix=undefined → defaults to '…'. Need explicit falsy.
+    // suffix='' is falsy, maxLen=0: cut = 0, cut<=0 → ''
+    assert.equal(sx.truncate('hello', 0, ''), '');
+  });
+
+  // Line 146: prune end<=0 with suffix falsy → return ''
+  it('prune with end<=0 and falsy suffix returns empty string', () => {
+    // suffix=null, maxLen=0: end = 0 - 0 = 0, end<=0 → suffix || '' = null || '' = ''
+    assert.equal(sx.prune('hello world', 0, null), '');
+    // suffix='', maxLen=0: end = 0 - 0 = 0, end<=0 → '' || '' = ''
+    assert.equal(sx.prune('hello world', 0, ''), '');
+  });
+
+  // Line 149: prune end===0 after walk-back (no word boundary found)
+  it('prune with no word boundary resets end to maxLen - suffix', () => {
+    // 'ABCDEFGH' has no word separators. maxLen=5, suffix='…' (1 char).
+    // end = 5-1 = 4. Walk: s[4]='E' no, s[3]='D' no, s[2]='C' no, s[1]='B' no → end=0.
+    // if (end === 0) → end = 5-1 = 4. Return slice(0,4) + '…' = 'ABCD…'
+    assert.equal(sx.prune('ABCDEFGH', 5, '…'), 'ABCD…');
+    // With empty suffix: end = 5-0 = 5, walk to 0, reset: end = 5-0 = 5
+    assert.equal(sx.prune('ABCDEFGH', 5, ''), 'ABCDE');
+  });
+
+  // Line 165: indexOfAll with empty/falsy substr returns empty array
+  it('indexOfAll with empty substr returns empty array', () => {
+    assert.deepEqual(sx.indexOfAll('hello', ''), []);
+    assert.deepEqual(sx.indexOfAll('hello', null), []);
+    assert.deepEqual(sx.indexOfAll('hello', undefined), []);
+    assert.deepEqual(sx.indexOfAll('hello', 0), []);
+  });
+
+  // Line 281: unescapeHtml unknown named entity → return original match
+  it('unescapeHtml returns original for truly unknown entities', () => {
+    assert.equal(sx.unescapeHtml('&foobarbaz;'), '&foobarbaz;');
+    assert.equal(sx.unescapeHtml('&ABC;'), '&ABC;');
+    assert.equal(sx.unescapeHtml('clean & unknown; text & amp;'), 'clean & unknown; text & amp;');
+  });
+
+  // Line 320: isBlank with falsy str (!str true branch)
+  it('isBlank with null/undefined/empty returns true', () => {
+    assert.equal(sx.isBlank(null), true);
+    assert.equal(sx.isBlank(undefined), true);
+    assert.equal(sx.isBlank(''), true);
+    assert.equal(sx.isBlank(0), true);
+    assert.equal(sx.isBlank(false), true);
+  });
+
+  // Line 378: similarity with maxLen===0 (dead code - unreachable via normal path)
+  // This branch is dead code: if both inputs are falsy, line 376 returns early.
+  // If either is truthy, String(a).length > 0. So maxLen can never be 0 here.
+  // Documenting as unreachable defensive code.
+
+  // Additional: surround with null/undefined wrapper array elements
+  it('surround with undefined elements uses empty string fallback', () => {
+    // w = [undefined, undefined] → (undefined || '') + str + (undefined || undefined || '')
+    assert.equal(sx.surround('hi', [undefined, undefined]), 'hi');
+    // w = [null, null] → same
+    assert.equal(sx.surround('hi', [null, null]), 'hi');
+    // w = [0, 0] → 0 is falsy → ''
+    assert.equal(sx.surround('hi', [0, 0]), 'hi');
+  });
+});
