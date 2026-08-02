@@ -54,5 +54,8 @@
   "homepage": "https://github.com/sulthonzh/string-x#readme",
   "bugs": {
     "url": "https://github.com/sulthonzh/string-x/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
